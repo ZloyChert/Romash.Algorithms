@@ -6,7 +6,6 @@ namespace SearchTrees.Extensions
     public static class NodeExtensions
     {
         public static int GetHeight<TNode, TKey, TValue>(this NodeBase<TNode, TKey, TValue> node) 
-            where TKey: IComparable<TKey>
             where TNode : NodeBase<TNode, TKey, TValue> , new()
         {
             if (node == null)

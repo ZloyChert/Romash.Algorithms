@@ -1,16 +1,31 @@
 ﻿using System;
+using System.Collections;
+using System.Collections.Generic;
 using SearchTrees.Models;
-using SearchTrees.Models.Interfaces;
 using SearchTrees.Trees.Interfaces;
 
 namespace SearchTrees.Trees.Abstract
 {
     public abstract class BinaryTreeBase<TNode, TKey, TValue> : ISearchTree<TNode, TKey, TValue> 
-        where TKey : IComparable<TKey>
         where TNode : NodeBase<TNode, TKey, TValue>, new()
     {
+        #region Constructors
+
+        protected BinaryTreeBase(IComparer<TKey> comparer)
+        {
+            Comparer = comparer;
+        }
+
+        protected BinaryTreeBase()
+        {
+            Comparer = Comparer<TKey>.Default;
+        }
+
+        #endregion
+
         #region Fields and Properties
 
+        protected IComparer<TKey> Comparer;
         protected TNode RootNode { get; set; }
 
         #endregion
@@ -31,9 +46,9 @@ namespace SearchTrees.Trees.Abstract
 
         private TNode SearchNode(TNode node, TKey key)
         {
-            while (node != null && node.Key.CompareTo(key) != 0)
+            while (node != null && Comparer.Compare(node.Key, key) != 0)
             {
-                node = key.CompareTo(node.Key) < 0 ? RootNode.LeftChildNode : RootNode.RightChildNode;
+                node = Comparer.Compare(key, node.Key) < 0 ? RootNode.LeftChildNode : RootNode.RightChildNode;
             }
 
             return node;
@@ -174,7 +189,7 @@ namespace SearchTrees.Trees.Abstract
             while (rootCopy != null)
             {
                 tempNode = rootCopy;
-                rootCopy = newNode.Key.CompareTo(rootCopy.Key) < 0 ? rootCopy.LeftChildNode : rootCopy.RightChildNode;
+                rootCopy = Comparer.Compare(newNode.Key, rootCopy.Key) < 0 ? rootCopy.LeftChildNode : rootCopy.RightChildNode;
             }
             newNode.ParentNode = tempNode;
 
@@ -184,7 +199,7 @@ namespace SearchTrees.Trees.Abstract
             }
             else
             {
-                if (newNode.Key.CompareTo(tempNode.Key) < 0)
+                if (Comparer.Compare(newNode.Key, tempNode.Key) < 0)
                 {
                     tempNode.LeftChildNode = newNode;
                 }

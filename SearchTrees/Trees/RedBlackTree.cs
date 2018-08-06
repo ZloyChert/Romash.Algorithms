@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using SearchTrees.Models;
 using SearchTrees.Trees.Abstract;
 
@@ -7,6 +8,20 @@ namespace SearchTrees.Trees
     public sealed class RedBlackTree<TKey, TValue> : BinaryTreeBase<ColorNode<TKey, TValue>, TKey, TValue>
         where TKey : IComparable<TKey>
     {
+        #region Constructors
+
+        public RedBlackTree(IComparer<TKey> comparer)
+        {
+            Comparer = comparer;
+        }
+
+        public RedBlackTree()
+        {
+            Comparer = Comparer<TKey>.Default;
+        }
+
+        #endregion
+
         #region Balancing
 
         private void RotateLeft(ColorNode<TKey, TValue> node)
@@ -135,6 +150,7 @@ namespace SearchTrees.Trees
 
             return newNode;
         }
+
         private ColorNode<TKey, TValue> BalanceAfterDelete(ColorNode<TKey, TValue> newNode)
         {
             while (newNode != RootNode && newNode.Black)

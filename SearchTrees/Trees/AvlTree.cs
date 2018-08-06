@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using SearchTrees.Extensions;
 using SearchTrees.Models;
 using SearchTrees.Trees.Abstract;
@@ -8,6 +9,20 @@ namespace SearchTrees.Trees
     public sealed class AvlTree<TKey, TValue> : BinaryTreeBase<Node<TKey, TValue>, TKey, TValue> 
         where TKey : IComparable<TKey>
     {
+        #region Constructors
+
+        public AvlTree(IComparer<TKey> comparer)
+        {
+            Comparer = comparer;
+        }
+
+        public AvlTree()
+        {
+            Comparer = Comparer<TKey>.Default;
+        }
+
+        #endregion
+
         #region Fields and properties
 
         private int _nodesCount;
