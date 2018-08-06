@@ -3,10 +3,11 @@ using SearchTrees.Models;
 
 namespace SearchTrees.Extensions
 {
-    internal static class NodeExtensions
+    public static class NodeExtensions
     {
-        internal static int GetHeight<TKey, TValue>(this Node<TKey, TValue> node) 
+        public static int GetHeight<TNode, TKey, TValue>(this NodeBase<TNode, TKey, TValue> node) 
             where TKey: IComparable<TKey>
+            where TNode : NodeBase<TNode, TKey, TValue> , new()
         {
             if (node == null)
             {

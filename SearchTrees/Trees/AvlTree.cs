@@ -34,8 +34,6 @@ namespace SearchTrees.Trees
         private Node<TKey, TValue> Balance(Node<TKey, TValue> node)
         {
             int nodeBfacror = node.GetBfactor<Node<TKey, TValue>, TKey, TValue>();
-            LeftTraversal(n => Console.Write($"{n.Key}; "));
-            Console.WriteLine($"({nodeBfacror})");
             if (nodeBfacror == 2)
             {
                 if (node.RightChildNode.GetBfactor<Node<TKey, TValue>, TKey, TValue>() < 0)

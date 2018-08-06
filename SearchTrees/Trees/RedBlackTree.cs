@@ -38,6 +38,7 @@ namespace SearchTrees.Trees
             tempNode.LeftChildNode = node;
             node.ParentNode = tempNode;
         }
+
         private void RotateRight(ColorNode<TKey, TValue> node)
         {
             ColorNode<TKey, TValue> tempNode = node.LeftChildNode;
@@ -67,6 +68,7 @@ namespace SearchTrees.Trees
             tempNode.RightChildNode = node;
             node.ParentNode = tempNode;
         }
+
         private ColorNode<TKey, TValue> BalanceAfterInsert(ColorNode<TKey, TValue> newNode)
         {
             while (newNode != RootNode && newNode.ParentNode.Red)
@@ -75,7 +77,7 @@ namespace SearchTrees.Trees
                 if (newNode.ParentNode == newNode.ParentNode.ParentNode.LeftChildNode)
                 {
                     tempNode = newNode.ParentNode.ParentNode.RightChildNode;
-                    if (tempNode.Red)
+                    if (tempNode != null && tempNode.Red)
                     {
                         newNode.ParentNode.Black = true;
                         tempNode.Black = true;
@@ -87,17 +89,23 @@ namespace SearchTrees.Trees
                         if (newNode == newNode.ParentNode.RightChildNode)
                         {
                             newNode = newNode.ParentNode;
-                            RotateLeft(newNode);
+                            if (newNode.RightChildNode != null)
+                            {
+                                RotateLeft(newNode);
+                            }
                         }
                         newNode.ParentNode.Black = true;
                         newNode.ParentNode.ParentNode.Red = true;
-                        RotateRight(newNode.ParentNode.ParentNode);
+                        if (newNode.ParentNode.ParentNode.LeftChildNode != null)
+                        {
+                            RotateRight(newNode.ParentNode.ParentNode);
+                        }
                     }
                 }
                 else
                 {
                     tempNode = newNode.ParentNode.ParentNode.LeftChildNode;
-                    if (tempNode.Red)
+                    if (tempNode != null && tempNode.Red)
                     {
                         newNode.ParentNode.Black = true;
                         tempNode.Black = true;
@@ -109,11 +117,17 @@ namespace SearchTrees.Trees
                         if (newNode == newNode.ParentNode.LeftChildNode)
                         {
                             newNode = newNode.ParentNode;
-                            RotateLeft(newNode);
+                            if (newNode.LeftChildNode != null)
+                            {
+                                RotateRight(newNode);
+                            }
                         }
                         newNode.ParentNode.Black = true;
                         newNode.ParentNode.ParentNode.Red = true;
-                        RotateRight(newNode.ParentNode.ParentNode);
+                        if (newNode.ParentNode.ParentNode.RightChildNode != null)
+                        {
+                            RotateLeft(newNode.ParentNode.ParentNode);
+                        }
                     }
                 }
             }
