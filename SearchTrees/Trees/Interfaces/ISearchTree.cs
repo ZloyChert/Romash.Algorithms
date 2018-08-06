@@ -1,13 +1,14 @@
 ﻿using System;
 using SearchTrees.Models;
-using SearchTrees.Models.Interfaces;
 
 namespace SearchTrees.Trees.Interfaces
 {
-    public interface ISearchTree<TKey, TValue> where TKey : IComparable<TKey>
+    public interface ISearchTree<TNode, TKey, TValue> 
+        where TKey : IComparable<TKey>
+        where TNode : NodeBase<TNode, TKey, TValue>, new()
     {
-        Node<TKey, TValue> InsertIterative(TKey key, TValue value);
-        void Delete(Node<TKey, TValue> node);
-        Node<TKey, TValue> Search(TKey key);
+        TNode Insert(TKey key, TValue value);
+        void Delete(TNode node);
+        TNode Search(TKey key);
     }
 }

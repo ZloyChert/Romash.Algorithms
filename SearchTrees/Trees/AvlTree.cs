@@ -5,7 +5,8 @@ using SearchTrees.Trees.Abstract;
 
 namespace SearchTrees.Trees
 {
-    public class AvlTree<TKey, TValue> : BinaryTreeBase<TKey, TValue> where TKey : IComparable<TKey>
+    public sealed class AvlTree<TKey, TValue> : BinaryTreeBase<Node<TKey, TValue>, TKey, TValue> 
+        where TKey : IComparable<TKey>
     {
         #region Fields and properties
 
@@ -32,10 +33,12 @@ namespace SearchTrees.Trees
         }
         private Node<TKey, TValue> Balance(Node<TKey, TValue> node)
         {
-            int nodeBfacror = node.GetBfactor();
+            int nodeBfacror = node.GetBfactor<Node<TKey, TValue>, TKey, TValue>();
+            LeftTraversal(n => Console.Write($"{n.Key}; "));
+            Console.WriteLine($"({nodeBfacror})");
             if (nodeBfacror == 2)
             {
-                if (node.RightChildNode.GetBfactor() < 0)
+                if (node.RightChildNode.GetBfactor<Node<TKey, TValue>, TKey, TValue>() < 0)
                 {
                     node.RightChildNode = SingleRotateRight(node.RightChildNode);
                 }
@@ -43,7 +46,7 @@ namespace SearchTrees.Trees
             }
             if (nodeBfacror == -2)
             {
-                if (node.LeftChildNode.GetBfactor() > 0)
+                if (node.LeftChildNode.GetBfactor<Node<TKey, TValue>, TKey, TValue>() > 0)
                 {
                     node.LeftChildNode = SingleRotateLeft(node.LeftChildNode);
                 }
@@ -69,31 +72,44 @@ namespace SearchTrees.Trees
 
         public Node<TKey, TValue> InsertIterative(TKey key, TValue value)
         {
-            return BalanceSubtree(BaseInsert(key, value));
+            _nodesCount++;
+            return BalanceSubtree(BaseInsert(new Node<TKey, TValue>
+            {
+                Key = key,
+                Value = value
+            }));
         }
 
         public override Node<TKey, TValue> Insert(TKey key, TValue value)
         {
-            _nodesCount++;
             return _nodesCount > _thresholdValue ? InsertIterative(key, value) : InsertRecursive(key, value);
         }
 
         public Node<TKey, TValue> InsertRecursive(TKey key, TValue value)
         {
+            _nodesCount++;
             if (RootNode == null)
             {
-                RootNode = new Node<TKey, TValue>(key, value);
+                RootNode = new Node<TKey, TValue>
+                {
+                    Key = key,
+                    Value = value
+                };
                 return RootNode;
             }
 
-            return InsertRecursiveNode(RootNode, key, value);
+            return RootNode = InsertRecursiveNode(RootNode, key, value);
         }
 
         private Node<TKey, TValue> InsertRecursiveNode(Node<TKey, TValue> node, TKey key, TValue value)
         {
             if (node == null)
             {
-                return new Node<TKey, TValue>(key, value);
+                return new Node<TKey, TValue>
+                {
+                    Key = key,
+                    Value = value
+                };
             }
 
             if (key.CompareTo(node.Key) < 0)

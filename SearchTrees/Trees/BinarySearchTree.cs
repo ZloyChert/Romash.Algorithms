@@ -4,11 +4,16 @@ using SearchTrees.Trees.Abstract;
 
 namespace SearchTrees.Trees
 {
-    public class BinarySearchTree<TKey, TValue> : BinaryTreeBase<TKey, TValue> where TKey : IComparable<TKey>
+    public class BinarySearchTree<TKey, TValue> : BinaryTreeBase<Node<TKey, TValue>, TKey, TValue> 
+        where TKey : IComparable<TKey>
     {
         public override Node<TKey, TValue> Insert(TKey key, TValue value)
         {
-            return BaseInsert(key, value);
+            return BaseInsert(new Node<TKey, TValue>
+            {
+                Key = key,
+                Value = value
+            });
         }
 
         public override void Delete(Node<TKey, TValue> node)

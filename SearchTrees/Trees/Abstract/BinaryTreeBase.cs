@@ -1,20 +1,23 @@
 ﻿using System;
 using SearchTrees.Models;
+using SearchTrees.Models.Interfaces;
 using SearchTrees.Trees.Interfaces;
 
 namespace SearchTrees.Trees.Abstract
 {
-    public abstract class BinaryTreeBase<TKey, TValue> : ISearchTree<TKey, TValue> where TKey : IComparable<TKey>
+    public abstract class BinaryTreeBase<TNode, TKey, TValue> : ISearchTree<TNode, TKey, TValue> 
+        where TKey : IComparable<TKey>
+        where TNode : NodeBase<TNode, TKey, TValue>, new()
     {
         #region Fields and Properties
 
-        protected Node<TKey, TValue> RootNode;
+        protected TNode RootNode { get; set; }
 
         #endregion
 
         #region Utils
 
-        protected void NodeAgrumentNullCheck(Node<TKey, TValue> node)
+        protected void NodeAgrumentNullCheck(TNode node)
         {
             if (node == null)
             {
@@ -26,7 +29,7 @@ namespace SearchTrees.Trees.Abstract
 
         #region Searching
 
-        private Node<TKey, TValue> SearchNode(Node<TKey, TValue> node, TKey key)
+        private TNode SearchNode(TNode node, TKey key)
         {
             while (node != null && node.Key.CompareTo(key) != 0)
             {
@@ -36,7 +39,7 @@ namespace SearchTrees.Trees.Abstract
             return node;
         }
 
-        public Node<TKey, TValue> Search(TKey key)
+        public TNode Search(TKey key)
         {
             if (key == null)
             {
@@ -50,7 +53,7 @@ namespace SearchTrees.Trees.Abstract
 
         #region Traversals
 
-        private void LeftNodeTraversal(Node<TKey, TValue> node, Action<Node<TKey, TValue>> actionWithNode)
+        private void LeftNodeTraversal(TNode node, Action<TNode> actionWithNode)
         {
             if (node != null)
             {
@@ -59,7 +62,7 @@ namespace SearchTrees.Trees.Abstract
                 LeftNodeTraversal(node.RightChildNode, actionWithNode);
             }
         }
-        private void RightNodeTraversal(Node<TKey, TValue> node, Action<Node<TKey, TValue>> actionWithNode)
+        private void RightNodeTraversal(TNode node, Action<TNode> actionWithNode)
         {
             if (node != null)
             {
@@ -69,7 +72,7 @@ namespace SearchTrees.Trees.Abstract
             }
         }
 
-        public void LeftTraversal(Action<Node<TKey, TValue>> actionWithNode)
+        public void LeftTraversal(Action<TNode> actionWithNode)
         {
             if (actionWithNode == null)
             {
@@ -79,7 +82,7 @@ namespace SearchTrees.Trees.Abstract
             LeftNodeTraversal(RootNode, actionWithNode);
         }
 
-        public void RightTraversal(Action<Node<TKey, TValue>> actionWithNode)
+        public void RightTraversal(Action<TNode> actionWithNode)
         {
             if (actionWithNode == null)
             {
@@ -93,7 +96,7 @@ namespace SearchTrees.Trees.Abstract
 
         #region Minimums and Maximums
 
-        public Node<TKey, TValue> MinimumNode(Node<TKey, TValue> node)
+        public TNode MinimumNode(TNode node)
         {
             NodeAgrumentNullCheck(node);
             while (node.LeftChildNode != null)
@@ -104,9 +107,9 @@ namespace SearchTrees.Trees.Abstract
             return node;
         }
 
-        public Node<TKey, TValue> Minimum => MinimumNode(RootNode);
+        public TNode Minimum => MinimumNode(RootNode);
 
-        public Node<TKey, TValue> MaximumNode(Node<TKey, TValue> node)
+        public TNode MaximumNode(TNode node)
         {
             NodeAgrumentNullCheck(node);
             while (node.RightChildNode != null)
@@ -117,13 +120,13 @@ namespace SearchTrees.Trees.Abstract
             return node;
         }
 
-        public Node<TKey, TValue> Maximum => MaximumNode(RootNode);
+        public TNode Maximum => MaximumNode(RootNode);
 
         #endregion
 
         #region Iterating forward and back
 
-        public Node<TKey, TValue> SuccessorNode(Node<TKey, TValue> node)
+        public TNode SuccessorNode(TNode node)
         {
             NodeAgrumentNullCheck(node);
 
@@ -131,7 +134,7 @@ namespace SearchTrees.Trees.Abstract
             {
                 return MinimumNode(node.RightChildNode);
             }
-            Node<TKey, TValue> tempNode = node.ParentNode;
+            TNode tempNode = node.ParentNode;
 
             while (tempNode != null && node == tempNode.RightChildNode)
             {
@@ -141,7 +144,7 @@ namespace SearchTrees.Trees.Abstract
             return tempNode;
         }
 
-        public Node<TKey, TValue> PredecessorNode(Node<TKey, TValue> node)
+        public TNode PredecessorNode(TNode node)
         {
             NodeAgrumentNullCheck(node);
 
@@ -149,7 +152,7 @@ namespace SearchTrees.Trees.Abstract
             {
                 return MaximumNode(node.RightChildNode);
             }
-            Node<TKey, TValue> tempNode = node.ParentNode;
+            TNode tempNode = node.ParentNode;
 
             while (tempNode != null && node == tempNode.LeftChildNode)
             {
@@ -163,16 +166,15 @@ namespace SearchTrees.Trees.Abstract
 
         #region Inserting
 
-        protected Node<TKey, TValue> BaseInsert(TKey key, TValue value)
+        protected TNode BaseInsert(TNode newNode)
         {
-            Node<TKey, TValue> tempNode = null;
-            Node<TKey, TValue> rootCopy = RootNode;
-            Node<TKey, TValue> newNode = new Node<TKey, TValue>(key, value);
+            TNode tempNode = null;
+            TNode rootCopy = RootNode;
 
             while (rootCopy != null)
             {
                 tempNode = rootCopy;
-                rootCopy = key.CompareTo(rootCopy.Key) < 0 ? rootCopy.LeftChildNode : rootCopy.RightChildNode;
+                rootCopy = newNode.Key.CompareTo(rootCopy.Key) < 0 ? rootCopy.LeftChildNode : rootCopy.RightChildNode;
             }
             newNode.ParentNode = tempNode;
 
@@ -193,16 +195,16 @@ namespace SearchTrees.Trees.Abstract
             }
             return newNode;
         }
-        public abstract Node<TKey, TValue> Insert(TKey key, TValue value);
+        public abstract TNode Insert(TKey key, TValue value);
 
         #endregion
 
         #region Deleting
 
-        protected Node<TKey, TValue> BaseDelete(Node<TKey, TValue> node)
+        protected TNode BaseDelete(TNode node)
         {
             NodeAgrumentNullCheck(node);
-            Node<TKey, TValue> exscindNode;
+            TNode exscindNode;
 
             if (node.LeftChildNode == null || node.RightChildNode == null)
             {
@@ -249,7 +251,7 @@ namespace SearchTrees.Trees.Abstract
             Delete(Search(key));
         }
 
-        public abstract void Delete(Node<TKey, TValue> node);
+        public abstract void Delete(TNode node);
 
         #endregion
 
