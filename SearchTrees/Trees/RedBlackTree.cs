@@ -10,14 +10,12 @@ namespace SearchTrees.Trees
     {
         #region Constructors
 
-        public RedBlackTree(IComparer<TKey> comparer)
+        public RedBlackTree(IComparer<TKey> comparer) : base(comparer)
         {
-            Comparer = comparer;
         }
 
         public RedBlackTree()
         {
-            Comparer = Comparer<TKey>.Default;
         }
 
         #endregion
@@ -146,8 +144,8 @@ namespace SearchTrees.Trees
                     }
                 }
             }
-            RootNode.Black = true;
 
+            RootNode.Black = true;
             return newNode;
         }
 

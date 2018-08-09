@@ -1,6 +1,6 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
+using SearchTrees.Exceptions;
 using SearchTrees.Models;
 using SearchTrees.Trees.Interfaces;
 
@@ -9,6 +9,13 @@ namespace SearchTrees.Trees.Abstract
     public abstract class BinaryTreeBase<TNode, TKey, TValue> : ISearchTree<TNode, TKey, TValue> 
         where TNode : NodeBase<TNode, TKey, TValue>, new()
     {
+        #region Fields and Properties
+
+        protected IComparer<TKey> Comparer;
+        protected TNode RootNode { get; set; }
+
+        #endregion
+
         #region Constructors
 
         protected BinaryTreeBase(IComparer<TKey> comparer)
@@ -23,68 +30,25 @@ namespace SearchTrees.Trees.Abstract
 
         #endregion
 
-        #region Fields and Properties
+        public abstract TNode Insert(TKey key, TValue value);
 
-        protected IComparer<TKey> Comparer;
-        protected TNode RootNode { get; set; }
+        public abstract void Delete(TNode node);
 
-        #endregion
-
-        #region Utils
-
-        protected void NodeAgrumentNullCheck(TNode node)
+        public void Delete(TKey key)
         {
-            if (node == null)
+            KeyAgrumentNullCheck(key);
+            TNode nodeForDeleting = Search(key);
+            if (nodeForDeleting == null)
             {
-                throw new ArgumentNullException(nameof(node));
+                return;
             }
-        }
-
-        #endregion
-
-        #region Searching
-
-        private TNode SearchNode(TNode node, TKey key)
-        {
-            while (node != null && Comparer.Compare(node.Key, key) != 0)
-            {
-                node = Comparer.Compare(key, node.Key) < 0 ? RootNode.LeftChildNode : RootNode.RightChildNode;
-            }
-
-            return node;
+            Delete(nodeForDeleting);
         }
 
         public TNode Search(TKey key)
         {
-            if (key == null)
-            {
-                throw new ArgumentNullException(nameof(key));
-            }
-
+            KeyAgrumentNullCheck(key);
             return SearchNode(RootNode, key);
-        }
-
-        #endregion
-
-        #region Traversals
-
-        private void LeftNodeTraversal(TNode node, Action<TNode> actionWithNode)
-        {
-            if (node != null)
-            {
-                LeftNodeTraversal(node.LeftChildNode, actionWithNode);
-                actionWithNode(node);
-                LeftNodeTraversal(node.RightChildNode, actionWithNode);
-            }
-        }
-        private void RightNodeTraversal(TNode node, Action<TNode> actionWithNode)
-        {
-            if (node != null)
-            {
-                RightNodeTraversal(node.LeftChildNode, actionWithNode);
-                actionWithNode(node);
-                RightNodeTraversal(node.RightChildNode, actionWithNode);
-            }
         }
 
         public void LeftTraversal(Action<TNode> actionWithNode)
@@ -106,10 +70,6 @@ namespace SearchTrees.Trees.Abstract
 
             RightNodeTraversal(RootNode, actionWithNode);
         }
-
-        #endregion
-
-        #region Minimums and Maximums
 
         public TNode MinimumNode(TNode node)
         {
@@ -136,10 +96,6 @@ namespace SearchTrees.Trees.Abstract
         }
 
         public TNode Maximum => MaximumNode(RootNode);
-
-        #endregion
-
-        #region Iterating forward and back
 
         public TNode SuccessorNode(TNode node)
         {
@@ -177,10 +133,6 @@ namespace SearchTrees.Trees.Abstract
             return tempNode;
         }
 
-        #endregion
-
-        #region Inserting
-
         protected TNode BaseInsert(TNode newNode)
         {
             TNode tempNode = null;
@@ -189,7 +141,13 @@ namespace SearchTrees.Trees.Abstract
             while (rootCopy != null)
             {
                 tempNode = rootCopy;
-                rootCopy = Comparer.Compare(newNode.Key, rootCopy.Key) < 0 ? rootCopy.LeftChildNode : rootCopy.RightChildNode;
+                int keyComparisionResult = Comparer.Compare(newNode.Key, rootCopy.Key);
+                if (keyComparisionResult == 0)
+                {
+                    throw new SearchTreeArgumentException($"Argument {nameof(newNode)} key already exists");
+                }
+
+                rootCopy = keyComparisionResult < 0 ? rootCopy.LeftChildNode : rootCopy.RightChildNode;
             }
             newNode.ParentNode = tempNode;
 
@@ -210,11 +168,6 @@ namespace SearchTrees.Trees.Abstract
             }
             return newNode;
         }
-        public abstract TNode Insert(TKey key, TValue value);
-
-        #endregion
-
-        #region Deleting
 
         protected TNode BaseDelete(TNode node)
         {
@@ -229,8 +182,9 @@ namespace SearchTrees.Trees.Abstract
             {
                 exscindNode = SuccessorNode(node);
             }
+            TNode parentNode = exscindNode.ParentNode;
 
-            var tempNode = exscindNode.LeftChildNode ?? exscindNode.RightChildNode;
+            TNode tempNode = exscindNode.LeftChildNode ?? exscindNode.RightChildNode;
 
             if (tempNode != null)
             {
@@ -258,17 +212,53 @@ namespace SearchTrees.Trees.Abstract
                 node.Value = exscindNode.Value;
             }
 
-            return exscindNode;
+            return tempNode ?? parentNode;
         }
 
-        public void Delete(TKey key)
+        protected void NodeAgrumentNullCheck(TNode node)
         {
-            Delete(Search(key));
+            if (node == null)
+            {
+                throw new ArgumentNullException(nameof(node));
+            }
         }
 
-        public abstract void Delete(TNode node);
+        protected void KeyAgrumentNullCheck(TKey key)
+        {
+            if (key == null)
+            {
+                throw new ArgumentNullException(nameof(key));
+            }
+        }
 
-        #endregion
+        private TNode SearchNode(TNode node, TKey key)
+        {
+            while (node != null && Comparer.Compare(node.Key, key) != 0)
+            {
+                node = Comparer.Compare(key, node.Key) < 0 ? node.LeftChildNode : node.RightChildNode;
+            }
 
+            return node;
+        }
+
+        private void LeftNodeTraversal(TNode node, Action<TNode> actionWithNode)
+        {
+            if (node != null)
+            {
+                LeftNodeTraversal(node.LeftChildNode, actionWithNode);
+                actionWithNode(node);
+                LeftNodeTraversal(node.RightChildNode, actionWithNode);
+            }
+        }
+
+        private void RightNodeTraversal(TNode node, Action<TNode> actionWithNode)
+        {
+            if (node != null)
+            {
+                RightNodeTraversal(node.LeftChildNode, actionWithNode);
+                actionWithNode(node);
+                RightNodeTraversal(node.RightChildNode, actionWithNode);
+            }
+        }
     }
 }

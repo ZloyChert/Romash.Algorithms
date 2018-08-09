@@ -1,8 +1,6 @@
-﻿using System;
-
-namespace SearchTrees.Models.Interfaces
+﻿namespace SearchTrees.Models.Interfaces
 {
-    public interface INode<TKey, TValue> where TKey : IComparable<TKey>
+    public interface INode<TKey, TValue>
     {
         TKey Key { get; }
         TValue Value { get; }

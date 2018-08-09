@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using SearchTrees.Extensions;
+using SearchTrees.Models;
 using SearchTrees.Trees;
 
 namespace Program
@@ -8,6 +9,33 @@ namespace Program
     class Program
     {
         static void Main(string[] args)
+        {
+            AvlTree<int, int> tree = new AvlTree<int, int>();
+
+            for (int i = 0; i < 150; i++)
+            {
+                tree.Insert(i, 0);
+            }
+            Console.Clear();
+            tree.Delete(5);
+            //tree.Delete(4);
+            //tree.Delete(3);
+
+            List<int> error = new List<int>();
+            void action(Node<int, int> a)
+            {
+                if (a.LeftChildNode == a.RightChildNode && a.LeftChildNode != null)
+                {
+                    error.Add(a.Key);
+                }
+
+            }
+            tree.LeftTraversal(action);
+            error.ForEach(n => Console.Write($"{n} "));
+            Console.Read();
+        }
+
+        public static void TestOne()
         {
             int Arraysize = 50;
             var _array = new int[Arraysize];
@@ -27,7 +55,7 @@ namespace Program
                 b.Insert(_array[i], 0);
                 c.Insert(_array[i], 0);
             }
-            
+
             a.LeftTraversal(n => Console.Write($"{n.Key}; "));
             Console.WriteLine("-----------");
             a.LeftTraversal(n => Console.Write($"{n.GetHeight()}; "));
@@ -39,8 +67,6 @@ namespace Program
             c.LeftTraversal(n => Console.Write($"{n.Key}; "));
             Console.WriteLine("-----------");
             c.LeftTraversal(n => Console.Write($"{n.GetHeight()}; "));
-
-            Console.Read();
         }
     }
 }

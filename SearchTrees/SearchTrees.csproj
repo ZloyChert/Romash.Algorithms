@@ -40,6 +40,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Exceptions\SearchTreeArgumentException.cs" />
+    <Compile Include="Exceptions\SearchTreeException.cs" />
     <Compile Include="Extensions\NodeExtensions.cs" />
     <Compile Include="Models\Interfaces\INode.cs" />
     <Compile Include="Models\ColorNode.cs" />

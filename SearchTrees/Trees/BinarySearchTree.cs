@@ -10,14 +10,12 @@ namespace SearchTrees.Trees
     {
         #region Constructors
 
-        public BinarySearchTree(IComparer<TKey> comparer)
+        public BinarySearchTree(IComparer<TKey> comparer) : base(comparer)
         {
-            Comparer = comparer;
         }
 
         public BinarySearchTree()
         {
-            Comparer = Comparer<TKey>.Default;
         }
 
         #endregion
